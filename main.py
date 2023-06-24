@@ -1,56 +1,70 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 
 
-
-app = FastAPI(title="Rahmoon Server")
-
-
-class Topic(BaseModel):
-    id:int
-    title:str
-    body:str
+app = FastAPI(title="Rahmoon Topics API Server")
 
 
-topics= list([
+topics:list[dict] = list([
         {"id":1,"title":"Topic 1", "body":"slkjs skjskjs skjsks kjs"},
         {"id":2,"title":"Topic 2", "body":"slkjs skjskjs skjsks kjs"},
-        {"id":3,"title":"Topic 3", "body":"slkjs skjskjs skjsks kjs"}
+        {"id":3,"title":"Topic 3", "body":"slkjs skjskjs skjsks kjs"},
+        {"id":4,"title":"Topic 4", "body":"slkjs skjskjs skjsks kjs"},
+        {"id":5,"title":"Topic 5", "body":"slkjs skjskjs skjsks kjs"},
+        {"id":6,"title":"Topic 6", "body":"slkjs skjskjs skjsks kjs"}
     ])
 
-@app.get("/") # Root end point
-async def root():
-    return {"message": "Hello World"}
 #=================================================
 
-@app.get("/topics") # End point posts
-def posts():
+@app.get("/get/topics") # End point posts
+def readAllTopics():
     return topics
 
-@app.post("/topics")
-def createTopic(topic:Topic):
+#-------------------------------------------
+@app.get("/get/topicbyid/{id}")
+def readOneTopicById(id:int):
+    for one in topics:
+        if one["id"]==id:
+            return one
+    
+    return f"Sorry no topic with this id: {id}"
+
+#-------------------------------------------
+@app.get("/get/topicbytitle/{title}")
+def readOneTopicByTitle(title:str):
+    for x in topics:
+        if x["title"].lower()==title.lower():
+            return x
+    
+    return f"Sorry no topic with this title: {title}"
+
+#-------------------------------------------
+
+
+
+
+@app.post("/post/topics")
+def createTopic(topic:dict):
     topics.append(topic)
     return topics
 
-@app.delete("/topics/{id}")
+#---------------------------------------------------------
+
+@app.delete("/delete/topics/{id}")
 def deleteTopicById(id:int):
-
-    for topic in topics:
-        if (topic["id"]==id):
-            topics.remove(topic)
-            break
-    
-    return topics
-
-
-@app.put("/topics")
-def updateTopic(topic:Topic):
-    
     for one in topics:
-        if one["id"]==topic["id"]:
+        if (one["id"]==id):
             topics.remove(one)
-            topics.append(topic)
-            break
+            return topics
     
-    topics
-    
+#----------------------------------------------------
+
+@app.put("/put/topics")
+def updateTopic(topic:dict):
+    idx=0
+    for one in topics:
+        if one["id"] ==topic["id"]:
+            topics.insert(idx,topic)
+            topics.remove(one)
+            return topics
+        idx+=1
+
